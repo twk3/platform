@@ -1054,50 +1054,12 @@ func updateUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !HasPermissionToUser(c, user.Id) {
+	if !app.HasPermissionToUser(c.Session.UserId, user.Id) {
 		return
 	}
 
-	if err := utils.IsPasswordValid(user.Password); user.Password != "" && err != nil {
-		c.Err = err
-		return
-	}
-
-	if result := <-app.Srv.Store.User().Update(user, false); result.Err != nil {
-		c.Err = result.Err
-		return
-	} else {
-		c.LogAudit("")
-
-		rusers := result.Data.([2]*model.User)
-
-		if rusers[0].Email != rusers[1].Email {
-			go sendEmailChangeEmail(c, rusers[1].Email, rusers[0].Email, c.GetSiteURL())
-
-			if utils.Cfg.EmailSettings.RequireEmailVerification {
-				go SendEmailChangeVerifyEmail(c, rusers[0].Id, rusers[0].Email, c.GetSiteURL())
-			}
-		}
-
-		if rusers[0].Username != rusers[1].Username {
-			go sendEmailChangeUsername(c, rusers[1].Username, rusers[0].Username, rusers[0].Email, c.GetSiteURL())
-		}
-
-		app.InvalidateCacheForUser(user.Id)
-
-		updatedUser := rusers[0]
-		updatedUser = sanitizeProfile(c, updatedUser)
-
-		omitUsers := make(map[string]bool, 1)
-		omitUsers[user.Id] = true
-		message := model.NewWebSocketEvent(model.WEBSOCKET_EVENT_USER_UPDATED, "", "", "", omitUsers)
-		message.Add("user", updatedUser)
-		go app.Publish(message)
-
-		rusers[0].Password = ""
-		rusers[0].AuthData = new(string)
-		*rusers[0].AuthData = ""
-		w.Write([]byte(rusers[0].ToJson()))
+	if ruser, err := app.UpdateUser(user); err != nil {
+		w.Write([]byte(ruser.ToJson()))
 	}
 }
 

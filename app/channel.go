@@ -370,8 +370,8 @@ func GetChannelMember(channelId string, userId string) (*model.ChannelMember, *m
 }
 
 func GetChannelData(teamId string, channelId string, userId string) (*model.ChannelData, *model.AppError) {
-	cchan := Srv.Store.Channel().Get(id, true)
-	cmchan := Srv.Store.Channel().GetMember(id, c.Session.UserId)
+	cchan := Srv.Store.Channel().Get(channelId, true)
+	cmchan := Srv.Store.Channel().GetMember(channelId, userId)
 
 	if cresult := <-cchan; cresult.Err != nil {
 		return nil, cresult.Err
@@ -384,7 +384,7 @@ func GetChannelData(teamId string, channelId string, userId string) (*model.Chan
 		data.Member = &member
 
 		if data.Channel.TeamId != teamId && data.Channel.Type != model.CHANNEL_DIRECT {
-			return nil, model.NewLocAppError("getChannel", "api.channel.get_channel.wrong_team.app_error", map[string]interface{}{"ChannelId": id, "TeamId": c.TeamId}, "")
+			return nil, model.NewLocAppError("getChannel", "api.channel.get_channel.wrong_team.app_error", map[string]interface{}{"ChannelId": channelId, "TeamId": teamId}, "")
 		}
 
 		return data, nil

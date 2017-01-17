@@ -34,72 +34,54 @@ type Context struct {
 	TeamId       string
 }
 
-func ApiPermissionHandler(h func(*Context, http.ResponseWriter, *http.Request), permission *model.Permission) http.Handler {
-	return &handler{h, true, false, true, false, false, false, true, permission}
-}
-
 func ApiAppHandler(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, true, false, false, false, false, nil}
+	return &handler{h, false, true, false, false, false, nil}
 }
 
 func AppHandler(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, false, false, false, false, false, nil}
+	return &handler{h, false, false, false, false, false, nil}
 }
 
 func AppHandlerIndependent(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, false, false, true, false, false, nil}
+	return &handler{h, false, false, true, false, false, nil}
 }
 
-func ApiUserRequired(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, false, true, false, false, false, true, nil}
+func ApiSessionRequired(h func(*Context, http.ResponseWriter, *http.Request), permission *model.Permission) http.Handler {
+	return &handler{h, true, false, true, false, true, permission}
 }
 
-func ApiUserRequiredActivity(h func(*Context, http.ResponseWriter, *http.Request), isUserActivity bool) http.Handler {
-	return &handler{h, true, false, true, isUserActivity, false, false, true, nil}
+func ApiSessionRequiredMfa(h func(*Context, http.ResponseWriter, *http.Request), permission *model.Permission) http.Handler {
+	return &handler{h, true, false, true, false, false, permission}
 }
 
-func ApiUserRequiredMfa(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, false, true, false, false, false, false, nil}
-}
-
-func UserRequired(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, false, false, false, false, false, true, nil}
+func SessionRequired(h func(*Context, http.ResponseWriter, *http.Request), permission *model.Permission) http.Handler {
+	return &handler{h, true, false, false, false, true, permission}
 }
 
 func AppHandlerTrustRequester(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, false, false, false, true, false, nil}
-}
-
-func ApiAdminSystemRequired(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, true, true, false, false, false, true, nil}
-}
-
-func ApiAdminSystemRequiredTrustRequester(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, true, true, false, false, true, true, nil}
+	return &handler{h, false, false, false, true, false, nil}
 }
 
 func ApiAppHandlerTrustRequester(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, true, false, false, true, false, nil}
+	return &handler{h, false, true, false, true, false, nil}
 }
 
-func ApiUserRequiredTrustRequester(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, false, true, false, false, true, true, nil}
+func ApiSessionRequiredTrustRequester(h func(*Context, http.ResponseWriter, *http.Request), permission *model.Permission) http.Handler {
+	return &handler{h, true, true, false, true, true, permission}
 }
 
 func ApiAppHandlerTrustRequesterIndependent(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, true, false, true, true, false, nil}
+	return &handler{h, false, true, true, true, false, nil}
 }
 
 type handler struct {
-	handleFunc         func(*Context, http.ResponseWriter, *http.Request)
-	requireUser        bool
-	requireSystemAdmin bool
-	isApi              bool
-	isUserActivity     bool
-	isTeamIndependent  bool
-	trustRequester     bool
-	requireMfa         bool
-	permission         *model.Permission
+	handleFunc        func(*Context, http.ResponseWriter, *http.Request)
+	requireSession    bool
+	isApi             bool
+	isTeamIndependent bool
+	trustRequester    bool
+	requireMfa        bool
+	permission        *model.Permission
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

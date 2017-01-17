@@ -9,21 +9,19 @@ import (
 )
 
 func RequestHasPermissionTo(askingUserId string, vars map[string]string, permission *model.Permission) bool {
-
-	// You always have permission to edit yourself
-	if permission.Id == model.PERMISSION_EDIT_OTHER_USERS.Id && askingUserId == vars["user_id"] {
+	if permission.AllowSelf && askingUserId == vars["user_id"] {
 		return true
 	}
 
-	if permission.Level == model.PERMISSION_LEVEL_SYSTEM {
+	if postId, ok := vars["post_id"]; ok {
+		return HasPermissionToPost(askingUserId, postId)
+	} else if channelId, ok := vars["channel_id"]; ok {
+		return HasPermissionToChannel(askingUserId, channelId, permission)
+	} else if teamId, ok := vars["team_id"]; ok {
+		return HasPermissionToTeam(askingUserId, teamId, permission)
+	} else {
 		return HasPermissionTo(askingUserId, permission)
-	} else if permission.Level == model.PERMISSION_LEVEL_TEAM {
-		return HasPermissionToTeam(askingUserId, vars["team_id"], permission)
-	} else if permission.Level == model.PERMISSION_LEVEL_CHANNEL {
-		return HasPermissionToChannel(askingUserId, vars["channel_id"], permission)
 	}
-
-	return false
 }
 
 func HasPermissionTo(askingUserId string, permission *model.Permission) bool {
@@ -82,11 +80,32 @@ func HasPermissionToChannel(askingUserId string, channelId string, permission *m
 }
 
 func HasPermissionToUser(askingUserId string, userId string) bool {
+	if askingUserId == userId {
+		return true
+	}
+
 	if HasPermissionTo(askingUserId, model.PERMISSION_EDIT_OTHER_USERS) {
 		return true
 	}
 
 	return false
+}
+
+func HasPermissionToPost(askingUserId string, postId string) bool {
+	if postId == "" || askingUserId == "" {
+		return false
+	}
+
+	post, err := GetSinglePost(postId)
+	if err != nil {
+		return false
+	}
+
+	if post.UserId == askingUserId {
+		return true
+	}
+
+	return HasPermissionToChannel(askingUserId, post.ChannelId, model.PERMISSION_EDIT_OTHERS_POSTS)
 }
 
 func CheckIfRolesGrantPermission(roles []string, permissionId string) bool {

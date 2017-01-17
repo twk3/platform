@@ -581,9 +581,10 @@ func getChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id := params["channel_id"]
 
-	data, err := app.GetChannelData(c.TeamId, id, c.Session.UserId)
-
-	if HandleEtag(data.Etag(), "Get Channel", w, r) {
+	if data, err := app.GetChannelData(c.TeamId, id, c.Session.UserId); err != nil {
+		c.Err = err
+		return
+	} else if HandleEtag(data.Etag(), "Get Channel", w, r) {
 		return
 	} else {
 		w.Header().Set(model.HEADER_ETAG_SERVER, data.Etag())
