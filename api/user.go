@@ -33,8 +33,11 @@ import (
 func InitUser() {
 	l4g.Debug(utils.T("api.user.init.debug"))
 
+	BaseRoutes.Users.Handle("/update", ApiSessionRequired(updateUser, nil)).Methods("POST")
+	BaseRoutes.NeedUser.Handle("/update_roles", ApiSessionRequired(updateRoles, model.PERMISSION_MANAGE_ROLES)).Methods("POST")
+	BaseRoutes.NeedUser.Handle("/sessions", ApiSessionRequired(getSessions, model.PERMISSION_EDIT_OTHER_USERS)).Methods("GET")
+
 	BaseRoutes.Users.Handle("/create", ApiAppHandler(createUser)).Methods("POST")
-	BaseRoutes.Users.Handle("/update", ApiUserRequired(updateUser)).Methods("POST")
 	BaseRoutes.Users.Handle("/update_active", ApiUserRequired(updateActive)).Methods("POST")
 	BaseRoutes.Users.Handle("/update_notify", ApiUserRequired(updateUserNotify)).Methods("POST")
 	BaseRoutes.Users.Handle("/newpassword", ApiUserRequired(updatePassword)).Methods("POST")
@@ -72,10 +75,8 @@ func InitUser() {
 	BaseRoutes.NeedUser.Handle("/get", ApiUserRequired(getUser)).Methods("GET")
 	BaseRoutes.Users.Handle("/name/{username:[A-Za-z0-9_\\-.]+}", ApiUserRequired(getByUsername)).Methods("GET")
 	BaseRoutes.Users.Handle("/email/{email}", ApiUserRequired(getByEmail)).Methods("GET")
-	BaseRoutes.NeedUser.Handle("/sessions", ApiPermissionHandler(getSessions, model.PERMISSION_EDIT_OTHER_USERS)).Methods("GET")
 	BaseRoutes.NeedUser.Handle("/audits", ApiUserRequired(getAudits)).Methods("GET")
 	BaseRoutes.NeedUser.Handle("/image", ApiUserRequiredTrustRequester(getProfileImage)).Methods("GET")
-	BaseRoutes.NeedUser.Handle("/update_roles", ApiPermissionHandler(updateRoles, model.PERMISSION_MANAGE_ROLES)).Methods("POST")
 
 	BaseRoutes.Root.Handle("/login/sso/saml", AppHandlerIndependent(loginWithSaml)).Methods("GET")
 	BaseRoutes.Root.Handle("/login/sso/saml", AppHandlerIndependent(completeSaml)).Methods("POST")

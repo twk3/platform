@@ -20,6 +20,8 @@ import (
 func InitChannel() {
 	l4g.Debug(utils.T("api.channel.init.debug"))
 
+	BaseRoutes.NeedChannel.Handle("/", ApiSessionRequired(getChannel, model.PERMISSION_READ_CHANNEL)).Methods("GET")
+
 	BaseRoutes.Channels.Handle("/", ApiUserRequired(getChannels)).Methods("GET")
 	BaseRoutes.Channels.Handle("/more/{offset:[0-9]+}/{limit:[0-9]+}", ApiUserRequired(getMoreChannelsPage)).Methods("GET")
 	BaseRoutes.Channels.Handle("/more/search", ApiUserRequired(searchMoreChannels)).Methods("POST")
@@ -37,7 +39,6 @@ func InitChannel() {
 
 	BaseRoutes.NeedChannelName.Handle("/join", ApiUserRequired(join)).Methods("POST")
 
-	BaseRoutes.NeedChannel.Handle("/", ApiPermissionHandler(getChannel, model.PERMISSION_READ_CHANNEL)).Methods("GET")
 	BaseRoutes.NeedChannel.Handle("/stats", ApiUserRequired(getChannelStats)).Methods("GET")
 	BaseRoutes.NeedChannel.Handle("/members/{user_id:[A-Za-z0-9]+}", ApiUserRequired(getChannelMember)).Methods("GET")
 	BaseRoutes.NeedChannel.Handle("/members/ids", ApiUserRequired(getChannelMembersByIds)).Methods("POST")
