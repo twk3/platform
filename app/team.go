@@ -88,3 +88,11 @@ func GetTeamsForUser(userId string) ([]*model.Team, *model.AppError) {
 		return result.Data.([]*model.Team), nil
 	}
 }
+
+func GetTeamMember(teamId, userId string) (*model.TeamMember, *model.AppError) {
+	if result := <-Srv.Store.Team().GetMember(teamId, userId); result.Err != nil {
+		return nil, result.Err
+	} else {
+		return result.Data.(*model.TeamMember), nil
+	}
+}

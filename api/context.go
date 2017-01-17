@@ -34,56 +34,60 @@ type Context struct {
 	TeamId       string
 }
 
+func ApiPermissionHandler(h func(*Context, http.ResponseWriter, *http.Request), permission *model.Permission) http.Handler {
+	return &handler{h, true, false, true, false, false, false, true, permission}
+}
+
 func ApiAppHandler(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, true, false, false, false, false}
+	return &handler{h, false, false, true, false, false, false, false, nil}
 }
 
 func AppHandler(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, false, false, false, false, false}
+	return &handler{h, false, false, false, false, false, false, false, nil}
 }
 
 func AppHandlerIndependent(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, false, false, true, false, false}
+	return &handler{h, false, false, false, false, true, false, false, nil}
 }
 
 func ApiUserRequired(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, false, true, false, false, false, true}
+	return &handler{h, true, false, true, false, false, false, true, nil}
 }
 
 func ApiUserRequiredActivity(h func(*Context, http.ResponseWriter, *http.Request), isUserActivity bool) http.Handler {
-	return &handler{h, true, false, true, isUserActivity, false, false, true}
+	return &handler{h, true, false, true, isUserActivity, false, false, true, nil}
 }
 
 func ApiUserRequiredMfa(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, false, true, false, false, false, false}
+	return &handler{h, true, false, true, false, false, false, false, nil}
 }
 
 func UserRequired(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, false, false, false, false, false, true}
+	return &handler{h, true, false, false, false, false, false, true, nil}
 }
 
 func AppHandlerTrustRequester(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, false, false, false, true, false}
+	return &handler{h, false, false, false, false, false, true, false, nil}
 }
 
 func ApiAdminSystemRequired(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, true, true, false, false, false, true}
+	return &handler{h, true, true, true, false, false, false, true, nil}
 }
 
 func ApiAdminSystemRequiredTrustRequester(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, true, true, false, false, true, true}
+	return &handler{h, true, true, true, false, false, true, true, nil}
 }
 
 func ApiAppHandlerTrustRequester(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, true, false, false, true, false}
+	return &handler{h, false, false, true, false, false, true, false, nil}
 }
 
 func ApiUserRequiredTrustRequester(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, true, false, true, false, false, true, true}
+	return &handler{h, true, false, true, false, false, true, true, nil}
 }
 
 func ApiAppHandlerTrustRequesterIndependent(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
-	return &handler{h, false, false, true, false, true, true, false}
+	return &handler{h, false, false, true, false, true, true, false, nil}
 }
 
 type handler struct {
@@ -95,6 +99,7 @@ type handler struct {
 	isTeamIndependent  bool
 	trustRequester     bool
 	requireMfa         bool
+	permission         *model.Permission
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -211,6 +216,11 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if c.Err == nil && (h.requireUser || h.requireSystemAdmin) {
 		//check if teamId exist
 		c.CheckTeamId()
+	}
+
+	if h.permission != nil && !app.RequestHasPermissionTo(c.Session.UserId, mux.Vars(r), h.permission) {
+		c.Err = model.NewLocAppError("ServeHTTP", "api.context.permissions.app_error", nil, "userId="+c.Session.UserId+", teamId="+c.TeamId+" permission="+h.permission.Id)
+		c.Err.StatusCode = http.StatusForbidden
 	}
 
 	if c.Err == nil {

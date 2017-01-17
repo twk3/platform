@@ -72,7 +72,7 @@ func InitUser() {
 	BaseRoutes.NeedUser.Handle("/get", ApiUserRequired(getUser)).Methods("GET")
 	BaseRoutes.Users.Handle("/name/{username:[A-Za-z0-9_\\-.]+}", ApiUserRequired(getByUsername)).Methods("GET")
 	BaseRoutes.Users.Handle("/email/{email}", ApiUserRequired(getByEmail)).Methods("GET")
-	BaseRoutes.NeedUser.Handle("/sessions", ApiUserRequired(getSessions)).Methods("GET")
+	BaseRoutes.NeedUser.Handle("/sessions", ApiPermissionHandler(getSessions, model.PERMISSION_EDIT_OTHER_USERS)).Methods("GET")
 	BaseRoutes.NeedUser.Handle("/audits", ApiUserRequired(getAudits)).Methods("GET")
 	BaseRoutes.NeedUser.Handle("/image", ApiUserRequiredTrustRequester(getProfileImage)).Methods("GET")
 	BaseRoutes.NeedUser.Handle("/update_roles", ApiUserRequired(updateRoles)).Methods("POST")
@@ -563,10 +563,6 @@ func getSessions(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	id := params["user_id"]
-
-	if !HasPermissionToUser(c, id) {
-		return
-	}
 
 	if result := <-app.Srv.Store.Session().GetSessions(id); result.Err != nil {
 		c.Err = result.Err

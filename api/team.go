@@ -676,7 +676,7 @@ func updateMemberRoles(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !HasPermissionToTeamContext(c, teamId, model.PERMISSION_MANAGE_ROLES) {
+	if !HasPermissionToTeamContext(c, teamId, model.PERMISSION_MANAGE_TEAM_ROLES) {
 		return
 	}
 

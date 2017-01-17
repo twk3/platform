@@ -361,6 +361,14 @@ func GetChannelByName(channelName, teamId string) (*model.Channel, *model.AppErr
 	}
 }
 
+func GetChannelMember(channelId string, userId string) (*model.ChannelMember, *model.AppError) {
+	if result := <-Srv.Store.Channel().GetMember(channelId, userId); result.Err != nil {
+		return nil, result.Err
+	} else {
+		return result.Data.(*model.ChannelMember), nil
+	}
+}
+
 func JoinChannel(channel *model.Channel, userId string) *model.AppError {
 	userChan := Srv.Store.User().Get(userId)
 	memberChan := Srv.Store.Channel().GetMember(channel.Id, userId)
