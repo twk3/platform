@@ -369,6 +369,28 @@ func GetChannelMember(channelId string, userId string) (*model.ChannelMember, *m
 	}
 }
 
+func GetChannelData(teamId string, channelId string, userId string) (*model.ChannelData, *model.AppError) {
+	cchan := Srv.Store.Channel().Get(id, true)
+	cmchan := Srv.Store.Channel().GetMember(id, c.Session.UserId)
+
+	if cresult := <-cchan; cresult.Err != nil {
+		return nil, cresult.Err
+	} else if cmresult := <-cmchan; cmresult.Err != nil {
+		return nil, cmresult.Err
+	} else {
+		data := &model.ChannelData{}
+		data.Channel = cresult.Data.(*model.Channel)
+		member := cmresult.Data.(model.ChannelMember)
+		data.Member = &member
+
+		if data.Channel.TeamId != teamId && data.Channel.Type != model.CHANNEL_DIRECT {
+			return nil, model.NewLocAppError("getChannel", "api.channel.get_channel.wrong_team.app_error", map[string]interface{}{"ChannelId": id, "TeamId": c.TeamId}, "")
+		}
+
+		return data, nil
+	}
+}
+
 func JoinChannel(channel *model.Channel, userId string) *model.AppError {
 	userChan := Srv.Store.User().Get(userId)
 	memberChan := Srv.Store.Channel().GetMember(channel.Id, userId)

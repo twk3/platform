@@ -75,7 +75,7 @@ func InitUser() {
 	BaseRoutes.NeedUser.Handle("/sessions", ApiPermissionHandler(getSessions, model.PERMISSION_EDIT_OTHER_USERS)).Methods("GET")
 	BaseRoutes.NeedUser.Handle("/audits", ApiUserRequired(getAudits)).Methods("GET")
 	BaseRoutes.NeedUser.Handle("/image", ApiUserRequiredTrustRequester(getProfileImage)).Methods("GET")
-	BaseRoutes.NeedUser.Handle("/update_roles", ApiUserRequired(updateRoles)).Methods("POST")
+	BaseRoutes.NeedUser.Handle("/update_roles", ApiPermissionHandler(updateRoles, model.PERMISSION_MANAGE_ROLES)).Methods("POST")
 
 	BaseRoutes.Root.Handle("/login/sso/saml", AppHandlerIndependent(loginWithSaml)).Methods("GET")
 	BaseRoutes.Root.Handle("/login/sso/saml", AppHandlerIndependent(completeSaml)).Methods("POST")
@@ -1189,10 +1189,6 @@ func updateRoles(c *Context, w http.ResponseWriter, r *http.Request) {
 	newRoles := props["new_roles"]
 	if !(model.IsValidUserRoles(newRoles)) {
 		c.SetInvalidParam("updateMemberRoles", "new_roles")
-		return
-	}
-
-	if !HasPermissionToContext(c, model.PERMISSION_MANAGE_ROLES) {
 		return
 	}
 

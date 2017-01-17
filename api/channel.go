@@ -37,7 +37,7 @@ func InitChannel() {
 
 	BaseRoutes.NeedChannelName.Handle("/join", ApiUserRequired(join)).Methods("POST")
 
-	BaseRoutes.NeedChannel.Handle("/", ApiUserRequired(getChannel)).Methods("GET")
+	BaseRoutes.NeedChannel.Handle("/", ApiPermissionHandler(getChannel, model.PERMISSION_READ_CHANNEL)).Methods("GET")
 	BaseRoutes.NeedChannel.Handle("/stats", ApiUserRequired(getChannelStats)).Methods("GET")
 	BaseRoutes.NeedChannel.Handle("/members/{user_id:[A-Za-z0-9]+}", ApiUserRequired(getChannelMember)).Methods("GET")
 	BaseRoutes.NeedChannel.Handle("/members/ids", ApiUserRequired(getChannelMembersByIds)).Methods("POST")
@@ -581,32 +581,13 @@ func getChannel(c *Context, w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id := params["channel_id"]
 
-	cchan := app.Srv.Store.Channel().Get(id, true)
-	cmchan := app.Srv.Store.Channel().GetMember(id, c.Session.UserId)
+	data, err := app.GetChannelData(c.TeamId, id, c.Session.UserId)
 
-	if cresult := <-cchan; cresult.Err != nil {
-		c.Err = cresult.Err
-		return
-	} else if cmresult := <-cmchan; cmresult.Err != nil {
-		c.Err = cmresult.Err
+	if HandleEtag(data.Etag(), "Get Channel", w, r) {
 		return
 	} else {
-		data := &model.ChannelData{}
-		data.Channel = cresult.Data.(*model.Channel)
-		member := cmresult.Data.(model.ChannelMember)
-		data.Member = &member
-
-		if data.Channel.TeamId != c.TeamId && data.Channel.Type != model.CHANNEL_DIRECT {
-			c.Err = model.NewLocAppError("getChannel", "api.channel.get_channel.wrong_team.app_error", map[string]interface{}{"ChannelId": id, "TeamId": c.TeamId}, "")
-			return
-		}
-
-		if HandleEtag(data.Etag(), "Get Channel", w, r) {
-			return
-		} else {
-			w.Header().Set(model.HEADER_ETAG_SERVER, data.Etag())
-			w.Write([]byte(data.ToJson()))
-		}
+		w.Header().Set(model.HEADER_ETAG_SERVER, data.Etag())
+		w.Write([]byte(data.ToJson()))
 	}
 }
 
