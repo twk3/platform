@@ -5,7 +5,6 @@ package model
 
 type Permission struct {
 	Id          string `json:"id"`
-	AllowSelf   bool   `json:"allow_self"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
@@ -73,217 +72,181 @@ var BuiltInRoles map[string]*Role
 func InitalizePermissions() {
 	PERMISSION_INVITE_USER = &Permission{
 		"invite_user",
-		false,
 		"authentication.permissions.team_invite_user.name",
 		"authentication.permissions.team_invite_user.description",
 	}
 	PERMISSION_ADD_USER_TO_TEAM = &Permission{
 		"add_user_to_team",
-		false,
 		"authentication.permissions.add_user_to_team.name",
 		"authentication.permissions.add_user_to_team.description",
 	}
 	PERMISSION_USE_SLASH_COMMANDS = &Permission{
 		"use_slash_commands",
-		false,
 		"authentication.permissions.team_use_slash_commands.name",
 		"authentication.permissions.team_use_slash_commands.description",
 	}
 	PERMISSION_MANAGE_SLASH_COMMANDS = &Permission{
 		"manage_slash_commands",
-		false,
 		"authentication.permissions.manage_slash_commands.name",
 		"authentication.permissions.manage_slash_commands.description",
 	}
 	PERMISSION_MANAGE_OTHERS_SLASH_COMMANDS = &Permission{
 		"manage_others_slash_commands",
-		false,
 		"authentication.permissions.manage_others_slash_commands.name",
 		"authentication.permissions.manage_others_slash_commands.description",
 	}
 	PERMISSION_CREATE_PUBLIC_CHANNEL = &Permission{
 		"create_public_channel",
-		false,
 		"authentication.permissions.create_public_channel.name",
 		"authentication.permissions.create_public_channel.description",
 	}
 	PERMISSION_CREATE_PRIVATE_CHANNEL = &Permission{
 		"create_private_channel",
-		false,
 		"authentication.permissions.create_private_channel.name",
 		"authentication.permissions.create_private_channel.description",
 	}
 	PERMISSION_MANAGE_PUBLIC_CHANNEL_MEMBERS = &Permission{
 		"manage_public_channel_members",
-		false,
 		"authentication.permissions.manage_public_channel_members.name",
 		"authentication.permissions.manage_public_channel_members.description",
 	}
 	PERMISSION_MANAGE_PRIVATE_CHANNEL_MEMBERS = &Permission{
 		"manage_private_channel_members",
-		false,
 		"authentication.permissions.manage_private_channel_members.name",
 		"authentication.permissions.manage_private_channel_members.description",
 	}
 	PERMISSION_ASSIGN_SYSTEM_ADMIN_ROLE = &Permission{
 		"assign_system_admin_role",
-		false,
 		"authentication.permissions.assign_system_admin_role.name",
 		"authentication.permissions.assign_system_admin_role.description",
 	}
 	PERMISSION_MANAGE_ROLES = &Permission{
 		"manage_roles",
-		false,
 		"authentication.permissions.manage_roles.name",
 		"authentication.permissions.manage_roles.description",
 	}
 	PERMISSION_MANAGE_TEAM_ROLES = &Permission{
 		"manage_team_roles",
-		false,
 		"authentication.permissions.manage_team_roles.name",
 		"authentication.permissions.manage_team_roles.description",
 	}
 	PERMISSION_MANAGE_CHANNEL_ROLES = &Permission{
 		"manage_channel_roles",
-		false,
 		"authentication.permissions.manage_channel_roles.name",
 		"authentication.permissions.manage_channel_roles.description",
 	}
 	PERMISSION_MANAGE_SYSTEM = &Permission{
 		"manage_system",
-		false,
 		"authentication.permissions.manage_system.name",
 		"authentication.permissions.manage_system.description",
 	}
 	PERMISSION_CREATE_DIRECT_CHANNEL = &Permission{
 		"create_direct_channel",
-		false,
 		"authentication.permissions.create_direct_channel.name",
 		"authentication.permissions.create_direct_channel.description",
 	}
 	PERMISSION_MANAGE_PUBLIC_CHANNEL_PROPERTIES = &Permission{
 		"manage__publicchannel_properties",
-		false,
 		"authentication.permissions.manage_public_channel_properties.name",
 		"authentication.permissions.manage_public_channel_properties.description",
 	}
 	PERMISSION_MANAGE_PRIVATE_CHANNEL_PROPERTIES = &Permission{
 		"manage_private_channel_properties",
-		false,
 		"authentication.permissions.manage_private_channel_properties.name",
 		"authentication.permissions.manage_private_channel_properties.description",
 	}
 	PERMISSION_LIST_TEAM_CHANNELS = &Permission{
 		"list_team_channels",
-		false,
 		"authentication.permissions.list_team_channels.name",
 		"authentication.permissions.list_team_channels.description",
 	}
 	PERMISSION_JOIN_PUBLIC_CHANNELS = &Permission{
 		"join_public_channels",
-		false,
 		"authentication.permissions.join_public_channels.name",
 		"authentication.permissions.join_public_channels.description",
 	}
 	PERMISSION_DELETE_PUBLIC_CHANNEL = &Permission{
 		"delete_public_channel",
-		false,
 		"authentication.permissions.delete_public_channel.name",
 		"authentication.permissions.delete_public_channel.description",
 	}
 	PERMISSION_DELETE_PRIVATE_CHANNEL = &Permission{
 		"delete_private_channel",
-		false,
 		"authentication.permissions.delete_private_channel.name",
 		"authentication.permissions.delete_private_channel.description",
 	}
 	PERMISSION_EDIT_OTHER_USERS = &Permission{
 		"edit_other_users",
-		true,
 		"authentication.permissions.edit_other_users.name",
 		"authentication.permissions.edit_other_users.description",
 	}
 	PERMISSION_READ_CHANNEL = &Permission{
 		"read_channel",
-		false,
 		"authentication.permissions.read_channel.name",
 		"authentication.permissions.read_channel.description",
 	}
 	PERMISSION_PERMANENT_DELETE_USER = &Permission{
 		"permanent_delete_user",
-		false,
 		"authentication.permissions.permanent_delete_user.name",
 		"authentication.permissions.permanent_delete_user.description",
 	}
 	PERMISSION_UPLOAD_FILE = &Permission{
 		"upload_file",
-		false,
 		"authentication.permissions.upload_file.name",
 		"authentication.permissions.upload_file.description",
 	}
 	PERMISSION_GET_PUBLIC_LINK = &Permission{
 		"get_public_link",
-		false,
 		"authentication.permissions.get_public_link.name",
 		"authentication.permissions.get_public_link.description",
 	}
 	PERMISSION_MANAGE_WEBHOOKS = &Permission{
 		"manage_webhooks",
-		false,
 		"authentication.permissions.manage_webhooks.name",
 		"authentication.permissions.manage_webhooks.description",
 	}
 	PERMISSION_MANAGE_OTHERS_WEBHOOKS = &Permission{
 		"manage_others_webhooks",
-		false,
 		"authentication.permissions.manage_others_webhooks.name",
 		"authentication.permissions.manage_others_webhooks.description",
 	}
 	PERMISSION_MANAGE_OAUTH = &Permission{
 		"manage_oauth",
-		false,
 		"authentication.permissions.manage_oauth.name",
 		"authentication.permissions.manage_oauth.description",
 	}
 	PERMISSION_MANAGE_SYSTEM_WIDE_OAUTH = &Permission{
 		"manage_sytem_wide_oauth",
-		false,
 		"authentication.permissions.manage_sytem_wide_oauth.name",
 		"authentication.permissions.manage_sytem_wide_oauth.description",
 	}
 	PERMISSION_CREATE_POST = &Permission{
 		"create_post",
-		false,
 		"authentication.permissions.create_post.name",
 		"authentication.permissions.create_post.description",
 	}
 	PERMISSION_EDIT_POST = &Permission{
 		"edit_post",
-		false,
 		"authentication.permissions.edit_post.name",
 		"authentication.permissions.edit_post.description",
 	}
 	PERMISSION_EDIT_OTHERS_POSTS = &Permission{
 		"edit_others_posts",
-		false,
 		"authentication.permissions.edit_others_posts.name",
 		"authentication.permissions.edit_others_posts.description",
 	}
 	PERMISSION_REMOVE_USER_FROM_TEAM = &Permission{
 		"remove_user_from_team",
-		false,
 		"authentication.permissions.remove_user_from_team.name",
 		"authentication.permissions.remove_user_from_team.description",
 	}
 	PERMISSION_MANAGE_TEAM = &Permission{
 		"manage_team",
-		false,
 		"authentication.permissions.manage_team.name",
 		"authentication.permissions.manage_team.description",
 	}
 	PERMISSION_IMPORT_TEAM = &Permission{
 		"import_team",
-		false,
 		"authentication.permissions.import_team.name",
 		"authentication.permissions.import_team.description",
 	}

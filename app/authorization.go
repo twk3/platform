@@ -9,10 +9,6 @@ import (
 )
 
 func RequestHasPermissionTo(askingUserId string, vars map[string]string, permission *model.Permission) bool {
-	if permission.AllowSelf && askingUserId == vars["user_id"] {
-		return true
-	}
-
 	if postId, ok := vars["post_id"]; ok {
 		return HasPermissionToPost(askingUserId, postId)
 	} else if channelId, ok := vars["channel_id"]; ok {
